@@ -11,6 +11,39 @@ export const stages = [
     shortDescription: "One CNN pass → reusable features",
     key_insight:
       "By computing features once and reusing them, Faster R-CNN avoids redundant computation and enables efficient object detection.",
+    // Extended detailed content
+    howItWorks:
+      "A convolutional backbone (typically VGG16 or ResNet-50) slides learned filters across the entire input image, producing a dense feature map. Each layer builds on the previous: early layers detect low-level patterns like edges and colour gradients, while deeper layers combine these into high-level semantic concepts like car bodies and windows. Faster R-CNN runs this step once and shares the result with all downstream stages.",
+    keyInsightExtended:
+      "In earlier detectors like R-CNN, features were extracted separately for each region proposal — up to 2,000 times per image. Faster R-CNN's shared backbone computes features just once, making it ~250× faster.",
+    purpose:
+      "Convert raw pixel values into a rich spatial feature map that encodes what is in each part of the image and where. This representation is then reused by both the Region Proposal Network (Stage 2) and the detection head (Stage 3).",
+    inputOutput: {
+      input: "512×512 RGB image (3 channels)",
+      output: "8×8×512 feature map — each of the 64 spatial cells encodes a 64×64 px receptive field from the original image",
+    },
+    receptiveFields: [
+      {
+        label: "Conv1",
+        desc: "detects pixel-level edges and colour boundaries",
+        receptiveField: "~16×16 px",
+      },
+      {
+        label: "Conv2",
+        desc: "detects corners, blobs, and simple textures",
+        receptiveField: "~32×32 px",
+      },
+      {
+        label: "Conv3",
+        desc: "detects object parts (wheels, windows)",
+        receptiveField: "~128×128 px",
+      },
+      {
+        label: "Feature Map",
+        desc: "full semantic encoding",
+        receptiveField: "~230×230 px of context",
+      },
+    ],
   },
   {
     id: "rpn",

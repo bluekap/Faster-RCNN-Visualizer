@@ -69,20 +69,22 @@ export function DetailModal({ stage, index, isOpen, onClose, children }) {
           <div className="detail-modal-details">
             <div className="details-section">
               <h3 className="details-section-title">How It Works</h3>
-              <p className="details-section-text">{stage.description}</p>
+              <p className="details-section-text">
+                {stage.howItWorks || stage.description}
+              </p>
             </div>
 
             <div className="details-section">
               <h3 className="details-section-title">💡 Key Insight</h3>
               <div className="key-insight-box">
-                <p>{stage.key_insight}</p>
+                <p>{stage.keyInsightExtended || stage.key_insight}</p>
               </div>
             </div>
 
-            {stage.kicker && (
+            {stage.purpose && (
               <div className="details-section">
                 <h3 className="details-section-title">Purpose</h3>
-                <p className="details-section-text">{stage.kicker}</p>
+                <p className="details-section-text">{stage.purpose}</p>
               </div>
             )}
 
@@ -91,15 +93,35 @@ export function DetailModal({ stage, index, isOpen, onClose, children }) {
               <div className="io-flow">
                 <div className="io-box input">
                   <span className="io-label">Input</span>
-                  <span className="io-value">Image Data</span>
+                  <span className="io-value">
+                    {stage.inputOutput?.input || "Image Data"}
+                  </span>
                 </div>
                 <div className="io-arrow">→</div>
                 <div className="io-box output">
                   <span className="io-label">Output</span>
-                  <span className="io-value">Processed Data</span>
+                  <span className="io-value">
+                    {stage.inputOutput?.output || "Processed Data"}
+                  </span>
                 </div>
               </div>
             </div>
+
+            {stage.receptiveFields && (
+              <div className="details-section">
+                <h3 className="details-section-title">Receptive Fields by Layer</h3>
+                <div className="receptive-fields-list">
+                  {stage.receptiveFields.map((field, idx) => (
+                    <div key={idx} className="receptive-field-item">
+                      <div className="rf-label">
+                        <strong>{field.label}</strong> — {field.desc}
+                      </div>
+                      <div className="rf-value">Receptive field: {field.receptiveField}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
