@@ -5,8 +5,8 @@ export function HeadStage() {
   const [confidenceThreshold, setConfidenceThreshold] = useState(0.3);
 
   const detections = [
-    { label: 'Car', score: 0.92, x: 8, y: 37, w: 28, h: 33, color: '#10B981' },
-    { label: 'Car', score: 0.41, x: 50, y: 40, w: 32, h: 35, color: '#10B981' },
+    { label: 'Car', score: 0.88, x: 8, y: 37, w: 28, h: 33, color: '#10B981' },
+    { label: 'Car', score: 0.92, x: 50, y: 40, w: 32, h: 35, color: '#10B981' },
   ];
 
   const visibleDetections = detections.filter(d => d.score >= confidenceThreshold);
