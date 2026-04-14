@@ -38,6 +38,7 @@ body {
 .header-right {
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
 .narrative-toggle-btn {
@@ -110,6 +111,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  position: relative; /* Added for scan window */
 }
 
 .viz-label {
@@ -646,4 +648,333 @@ body {
     padding: 1rem;
     font-size: 0.875rem;
   }
+}
+
+/* New styles for interactive elements */
+.relative {
+  position: relative;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.scan-window {
+  box-sizing: border-box;
+}
+
+.feature-map-cell {
+  transform: scale(1);
+}
+
+.feature-cell-visual.transition-all {
+  transition-property: all;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.anchor-box {
+  box-sizing: border-box;
+  transition: all 0.1s ease-out;
+}
+
+.roi-pool-input {
+  position: relative;
+  overflow: hidden;
+}
+
+.roi-pool-input img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: top left;
+}
+
+.detection-final {
+  position: relative;
+}
+
+.detection-box-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* New utility classes for Tailwind-like styling */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.border-2 {
+  border-width: 2px;
+}
+
+.border-dashed {
+  border-style: dashed;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.text-white {
+  color: white;
+}
+
+.text-\[8px\] {
+  font-size: 8px;
+}
+
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.w-16 {
+  width: 4rem;
+}
+
+.h-16 {
+  height: 4rem;
+}
+
+.bg-gray-900 {
+  background-color: #111827;
+}
+
+.max-w-none {
+  max-width: none;
+}
+
+.transition-all {
+  transition-property: all;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
+}
+
+.grid {
+  display: grid;
+}
+
+.grid-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.border {
+  border-width: 1px;
+}
+
+.border-gray-700 {
+  border-color: #374151;
+}
+
+.w-3 {
+  width: 0.75rem;
+}
+
+.h-3 {
+  height: 0.75rem;
+}
+
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.bg-gray-900 {
+  background-color: #111827;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.border-gray-800 {
+  border-color: #1f2937;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-gray-400 {
+  color: #9ca3af;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.block {
+  display: block;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-1 {
+  height: 0.25rem;
+}
+
+.bg-gray-700 {
+  background-color: #374151;
+}
+
+.appearance-none {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.accent-emerald-500 {
+  accent-color: #10b981;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.text-\[10px\] {
+  font-size: 10px;
+}
+
+.p-1 {
+  padding: 0.25rem;
+}
+
+.rounded {
+  border-radius: 0.25rem;
+}
+
+.bg-emerald-900\/30 {
+  background-color: rgba(4, 120, 87, 0.3);
+}
+
+.text-emerald-400 {
+  color: #34d399;
+}
+
+.bg-gray-800 {
+  background-color: #1f2937;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.focus\:border-indigo-300:focus {
+  border-color: #a78bfa;
+}
+
+.focus\:ring:focus {
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+.focus\:ring-indigo-200:focus {
+  --tw-ring-color: #c7d2fe;
+}
+
+.focus\:ring-opacity-50:focus {
+  --tw-ring-opacity: 0.5;
 }
