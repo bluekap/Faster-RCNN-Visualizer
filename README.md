@@ -58,9 +58,9 @@ This will serve the optimized production build, usually on `http://localhost:417
 
 ## Tech Stack
 
--   **React:** Frontend library for building the user interface.
--   **Vite:** Fast development server and build tool.
--   **D3.js:** (If used for visualizations, confirm in code)
--   **GSAP:** (If used for animations, confirm in code)
--   **Lucide React:** Icon library.
--   **CSS:** For styling (includes some Tailwind-like utility classes for interactive elements).
+React: Frontend library for building the user interface.
+Vite: Fast development server and build tool.
+D3.js: Used for visualizations and interactive graphics.
+GSAP: Used for animations and smooth transitions.
+Lucide React: Icon library.
+CSS: For styling (includes some Tailwind-like utility classes for interactive elements).
