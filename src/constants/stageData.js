@@ -7,8 +7,9 @@ export const stages = [
     kicker: "Stage 1",
     subtitle: "Feature Extraction",
     description:
-      "A convolutional backbone extracts a dense feature map from the input image. Faster R-CNN reuses this single representation for all downstream stages, dramatically improving speed.",
+      "The backbone extracts feature maps that will later be used by the Region Proposal Network. It runs a single CNN pass to create a dense representation that all downstream stages reuse, dramatically improving speed.",
     shortDescription: "One CNN pass → reusable features",
+    mental_model: "At this stage, the network is not detecting objects yet — it is only learning what patterns exist in the image.",
     key_insight:
       "By computing features once and reusing them, Faster R-CNN avoids redundant computation and enables efficient object detection.",
     // Extended detailed content
@@ -26,24 +27,25 @@ export const stages = [
       {
         label: "Conv1",
         desc: "detects pixel-level edges and colour boundaries",
-        receptiveField: "~16×16 px",
+        receptiveField: "7 px",
       },
       {
         label: "Conv2",
         desc: "detects corners, blobs, and simple textures",
-        receptiveField: "~32×32 px",
+        receptiveField: "23 px",
       },
       {
         label: "Conv3",
         desc: "detects object parts (wheels, windows)",
-        receptiveField: "~128×128 px",
+        receptiveField: "87 px",
       },
       {
         label: "Feature Map",
-        desc: "full semantic encoding",
-        receptiveField: "~230×230 px of context",
+        desc: "full semantic encoding with large context",
+        receptiveField: "215 px",
       },
     ],
+    transition: "Shared Feature Map",
   },
   {
     id: "rpn",
@@ -56,6 +58,7 @@ export const stages = [
     shortDescription: "Anchor templates → scored proposals",
     key_insight:
       "Instead of exhaustively searching the image, the RPN intelligently proposes promising regions, reducing the search space.",
+    transition: "Region Proposals",
   },
   {
     id: "roi",
@@ -64,10 +67,24 @@ export const stages = [
     kicker: "Stage 3",
     subtitle: "Normalize Regions",
     description:
-      "Each proposal (variable size) is pooled into a fixed 7×7 tensor. This standardization allows the detection head to process regions of different sizes uniformly.",
+      "Each region proposal is warped to a fixed-size feature map using RoI Pooling, allowing the network to process objects of any size uniformly.",
     shortDescription: "Variable regions → fixed-size tensors",
     key_insight:
-      "RoI pooling is the key innovation that lets a single detection head handle proposals of vastly different sizes.",
+      "RoI Pooling decouples detection from classification — the same shared feature map is reused for every proposal, making inference fast and memory-efficient.",
+    // Extended detailed content
+    howItWorks:
+      "Each region proposal is warped to a fixed-size feature map using RoI Pooling, allowing the network to process objects of any size uniformly.",
+    keyInsightExtended:
+      "RoI Pooling decouples detection from classification — the same shared feature map is reused for every proposal, making inference fast and memory-efficient.",
+    inputOutput: {
+      input: "A variable-sized region proposal (bounding box) on the feature map",
+      grid: "The region is divided into a fixed 7×7 grid of bins",
+      pooling: "Max pooling is applied within each bin",
+      output: "A fixed 7×7 × C feature tensor, regardless of the original proposal size",
+    },
+    whyItMatters:
+      "Before RoI Pooling (introduced in Fast R-CNN), each proposal had to be warped or cropped individually before being passed through a CNN — this was slow. RoI Pooling allows a single forward pass through the backbone for the entire image, with proposal-specific features extracted in one step.",
+    transition: "Pooled Features",
   },
   {
     id: "head",
@@ -109,9 +126,9 @@ export const presets = [
 
 export const metrics = {
   backbone: {
-    inputs: "800×800 image",
-    outputs: "50×50 feature map",
-    stride: "16 pixels",
+    inputs: "512×512 image",
+    outputs: "8×8 feature map",
+    stride: "64 pixels (total)",
     description: "Extract rich spatial features from the input",
   },
   rpn: {

@@ -94,16 +94,21 @@ body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Stage Visualization Content */
 .stage-visualization {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 1.5rem;
   width: 100%;
+  padding: 0.5rem;
 }
 
 .viz-card {
@@ -591,18 +596,62 @@ body {
 .app-footer {
   background: white;
   border-top: 1px solid rgb(229, 231, 235);
-  padding: 2rem;
+  padding: 3rem 2rem;
   text-align: center;
-  font-size: 0.9375rem;
-  color: rgb(107, 114, 128);
   margin-top: auto;
+  position: relative;
+  z-index: 10;
 }
 
-.app-footer p {
-  margin: 0;
+.footer-content {
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
+}
+
+.footer-description {
+  color: rgb(107, 114, 128);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid rgb(243, 244, 246);
+  padding-top: 2rem;
+}
+
+.footer-copyright {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgb(55, 65, 81);
+  letter-spacing: 0.025em;
+}
+
+.footer-link {
+  color: rgb(59, 130, 246);
+  text-decoration: none;
+  font-weight: 800;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.footer-link:hover {
+  color: rgb(37, 99, 235);
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+}
+
+.footer-separator {
+  color: rgb(209, 213, 219);
+  font-weight: 300;
 }
 
 /* Responsive Design */

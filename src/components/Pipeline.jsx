@@ -23,10 +23,11 @@ export function Pipeline({ activeStage, onStageClick, onStageOpen, children }) {
 
             {/* Flow connector between stages */}
             {index < stages.length - 1 && (
-              <div className="flow-connector-wrapper">
+              <div className="flow-connector-wrapper" style={{ height: 'auto' }}>
                 <FlowConnector
                   active={activeStage >= index}
                   color={getStageColor(index).primary}
+                  label={stage.transition}
                 />
               </div>
             )}

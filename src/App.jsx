@@ -94,7 +94,26 @@ function App() {
 
       {/* Footer */}
       <footer className="app-footer">
-        <p>Faster R-CNN is a state-of-the-art object detection framework that balances accuracy and speed.</p>
+        <div className="footer-content">
+          <p className="footer-description">
+            Faster R-CNN is a state-of-the-art object detection framework that balances accuracy and speed.
+          </p>
+          <div className="footer-bottom">
+            <div className="footer-copyright">
+              <span>© 2026 </span>
+              <a 
+                href="https://github.com/bluekap" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="footer-link"
+              >
+                bluekap™
+              </a>
+              <span className="footer-separator">•</span>
+              <span>All Rights Reserved</span>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

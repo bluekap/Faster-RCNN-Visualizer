@@ -74,6 +74,15 @@ export function DetailModal({ stage, index, isOpen, onClose, children }) {
               </p>
             </div>
 
+            {stage.mental_model && (
+              <div className="details-section mental-model-section">
+                <h3 className="details-section-title">🧠 Mental Model</h3>
+                <div className="mental-model-box">
+                  <p className="details-section-text">{stage.mental_model}</p>
+                </div>
+              </div>
+            )}
+
             <div className="details-section">
               <h3 className="details-section-title">💡 Key Insight</h3>
               <div className="key-insight-box">
@@ -90,22 +99,50 @@ export function DetailModal({ stage, index, isOpen, onClose, children }) {
 
             <div className="details-section">
               <h3 className="details-section-title">Input / Output</h3>
-              <div className="io-flow">
-                <div className="io-box input">
-                  <span className="io-label">Input</span>
-                  <span className="io-value">
-                    {stage.inputOutput?.input || "Image Data"}
-                  </span>
+              {stage.inputOutput?.grid ? (
+                <div className="io-detailed">
+                  <div className="io-detailed-item">
+                    <span className="io-detailed-label">Input</span>
+                    <span className="io-detailed-value">{stage.inputOutput.input}</span>
+                  </div>
+                  <div className="io-detailed-item">
+                    <span className="io-detailed-label">Grid</span>
+                    <span className="io-detailed-value">{stage.inputOutput.grid}</span>
+                  </div>
+                  <div className="io-detailed-item">
+                    <span className="io-detailed-label">Pooling</span>
+                    <span className="io-detailed-value">{stage.inputOutput.pooling}</span>
+                  </div>
+                  <div className="io-detailed-item highlight">
+                    <span className="io-detailed-label">Output</span>
+                    <span className="io-detailed-value">{stage.inputOutput.output}</span>
+                  </div>
                 </div>
-                <div className="io-arrow">→</div>
-                <div className="io-box output">
-                  <span className="io-label">Output</span>
-                  <span className="io-value">
-                    {stage.inputOutput?.output || "Processed Data"}
-                  </span>
+              ) : (
+                <div className="io-flow">
+                  <div className="io-box input">
+                    <span className="io-label">Input</span>
+                    <span className="io-value">
+                      {stage.inputOutput?.input || "Image Data"}
+                    </span>
+                  </div>
+                  <div className="io-arrow">→</div>
+                  <div className="io-box output">
+                    <span className="io-label">Output</span>
+                    <span className="io-value">
+                      {stage.inputOutput?.output || "Processed Data"}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
+
+            {stage.whyItMatters && (
+              <div className="details-section">
+                <h3 className="details-section-title">Why It Matters</h3>
+                <p className="details-section-text">{stage.whyItMatters}</p>
+              </div>
+            )}
 
             {stage.receptiveFields && (
               <div className="details-section">

@@ -24,6 +24,14 @@ export function NarrativePanel({ currentStage, onNext, onPrev, totalStages = 4 }
       <div className="narrative-content">
         <p className="narrative-description">{stage.description}</p>
 
+        {stage.mental_model && (
+          <div className="narrative-mental-model">
+            <p className="mental-model-text">
+              <strong>🧠 Mental Model:</strong> {stage.mental_model}
+            </p>
+          </div>
+        )}
+
         <div
           className="narrative-insight"
           style={{

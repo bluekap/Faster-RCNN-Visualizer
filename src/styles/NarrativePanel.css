@@ -58,6 +58,25 @@
   margin: 0 0 1.5rem 0;
 }
 
+.narrative-mental-model {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.mental-model-text {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+  color: rgb(75, 85, 99);
+}
+
+.mental-model-text strong {
+  color: rgb(17, 24, 39);
+}
+
 .narrative-insight {
   background: var(--stage-light, rgba(59, 130, 246, 0.1));
   border: 1px solid rgba(0, 0, 0, 0.08);

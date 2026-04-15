@@ -6,12 +6,24 @@ const SZ = 8;  // 8×8 spatial resolution of the final feature map
 const PX = 7;  // pixels per cell when drawing on canvas
 
 // Conv stages: each halves spatial resolution and doubles receptive field
+// Using parameters that target a final jump of 64px (for 8x8 map)
 const CONV_STAGES = [
-  { label: "Conv1 (stride 4)",  desc: "Low-level: edges & colours",    receptiveFieldFrac: 1 / SZ },
-  { label: "Conv2 (stride 8)",  desc: "Mid-level: corners & textures", receptiveFieldFrac: 2 / SZ },
-  { label: "Conv3 (stride 16)", desc: "High-level: parts & shapes",    receptiveFieldFrac: 4 / SZ },
-  { label: "Feature Map",       desc: "Semantic: objects & context",   receptiveFieldFrac: 0.45  },
+  { label: "Conv1", desc: "k=7, s=4, p=3", k: 7, s: 4, p: 3 },
+  { label: "Conv2", desc: "k=5, s=4, p=2", k: 5, s: 4, p: 2 },
+  { label: "Conv3", desc: "k=5, s=4, p=1", k: 5, s: 4, p: 1 },
+  { label: "Feature Map", desc: "k=3, s=1, p=1", k: 3, s: 1, p: 1 },
 ];
+
+function getRFStats(stageIdx) {
+  let rf = 1;
+  let jump = 1;
+  for (let i = 0; i <= stageIdx; i++) {
+    const layer = CONV_STAGES[i];
+    rf = rf + (layer.k - 1) * jump;
+    jump = jump * layer.s;
+  }
+  return { rf, jump };
+}
 
 // Objects in street.jpg (normalised 0–1 coords)
 const OBJECTS = [
@@ -166,7 +178,8 @@ function buildActivationMap(chIdx, hoverCell, stageIdx) {
 
       // Hover: boost cells within the receptive field of the hovered position
       if (hoverCell && hoverCell.col >= 0) {
-        const rfFrac = CONV_STAGES[stageIdx].receptiveFieldFrac;
+        const { rf, jump } = getRFStats(stageIdx);
+        const rfFrac = rf / 512;
         const hx     = (hoverCell.col + 0.5) / SZ;
         const hy     = (hoverCell.row + 0.5) / SZ;
         const dist   = Math.sqrt((nx - hx) ** 2 + (ny - hy) ** 2);
@@ -202,7 +215,7 @@ function drawChannel(canvas, chIdx, hoverCell, stageIdx) {
 }
 
 // ─── Single channel tile ──────────────────────────────────────────────────────
-function ChannelCanvas({ chIdx, hoverCol, hoverRow, stageIdx }) {
+function ChannelCanvas({ chIdx, hoverCol, hoverRow, stageIdx, onHover }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -216,11 +229,21 @@ function ChannelCanvas({ chIdx, hoverCol, hoverRow, stageIdx }) {
   const group     = CHANNEL_META[chIdx].group;
   const [r, g, b] = GROUP_COLORS[group];
 
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width;
+    const ny = (e.clientY - rect.top)  / rect.height;
+    onHover?.(Math.floor(nx * SZ), Math.floor(ny * SZ), true);
+  };
+
   return (
     <div
       className="feature-map-cell"
       title={`Ch.${chIdx + 1} · ${CHANNEL_META[chIdx].name}`}
       style={{ position: "relative" }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => onHover?.(null, null, true)}
+      onMouseLeave={() => onHover?.(-1, -1, false)}
     >
       <canvas
         ref={canvasRef}
@@ -243,30 +266,21 @@ function ChannelCanvas({ chIdx, hoverCol, hoverRow, stageIdx }) {
 }
 
 // ─── Stage selector buttons ───────────────────────────────────────────────────
-function StageIndicator({ activeStage, onSelect }) {
+function StageIndicator({ activeStage, onSelect, showRF, onToggleRF }) {
   return (
-    <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginBottom: "10px", justifyContent: "center" }}>
-      {CONV_STAGES.map((s, i) => (
-        <button
-          key={i}
-          onClick={() => onSelect(i)}
-          title={s.desc}
-          style={{
-            padding: "4px 10px",
-            fontSize: "11px",
-            borderRadius: "20px",
-            border: "1px solid",
-            cursor: "pointer",
-            fontWeight:  i === activeStage ? 700 : 400,
-            background:  i === activeStage ? "#3B82F6" : "transparent",
-            borderColor: i === activeStage ? "#3B82F6" : "#555",
-            color:       i === activeStage ? "#fff"    : "#aaa",
-            transition: "all 0.15s ease",
-          }}
-        >
-          {s.label}
-        </button>
-      ))}
+    <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "15px", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+        {/* Only Conv3 is used, selection buttons removed per user request */}
+      </div>
+
+      <button
+        onClick={() => onToggleRF(!showRF)}
+        className={`rf-toggle-btn ${showRF ? "active" : ""}`}
+        title="Toggle constant receptive field grid"
+      >
+        <span className="rf-toggle-icon">{showRF ? "👁️" : "👁️‍🗨️"}</span>
+        Show RF Grid
+      </button>
     </div>
   );
 }
@@ -287,7 +301,7 @@ function GroupLegend() {
 
 // ─── Receptive field readout ──────────────────────────────────────────────────
 function ReceptiveFieldHint({ stageIdx, hoverCol }) {
-  const rfPx = Math.round(CONV_STAGES[stageIdx].receptiveFieldFrac * 512);
+  const { rf, jump } = getRFStats(stageIdx);
   return (
     <div style={{
       fontSize: "10px",
@@ -297,7 +311,7 @@ function ReceptiveFieldHint({ stageIdx, hoverCol }) {
       minHeight: "18px",
       visibility: hoverCol >= 0 ? "visible" : "hidden",
     }}>
-      Receptive field at this stage ≈ {rfPx}×{rfPx} px of the original 512×512 image
+      RF size: {rf}px · Stride in input: {jump}px
     </div>
   );
 }
@@ -307,45 +321,73 @@ export function BackboneStage() {
   const [hoverCol,    setHoverCol]    = useState(-1);
   const [hoverRow,    setHoverRow]    = useState(-1);
   const [isHovering,  setIsHovering]  = useState(false);
-  const [scanPos,     setScanPos]     = useState({ x: 50, y: 50 });
-  const [activeStage, setActiveStage] = useState(0); // start at Conv1
+  const [scanPos,     setScanPos]     = useState({ x: 43.75, y: 43.75 }); // Initial center cell (3,3)
+  const [activeStage, setActiveStage] = useState(2); // start at Conv3
+  const [isRFEnabled, setIsRFEnabled] = useState(false);
 
-  const handleMouseMove = (e) => {
+  const handleImageMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const nx = (e.clientX - rect.left) / rect.width;
     const ny = (e.clientY - rect.top)  / rect.height;
-    setScanPos({ x: nx * 100, y: ny * 100 });
+    
+    setIsHovering(true);
     setHoverCol(Math.floor(nx * SZ));
     setHoverRow(Math.floor(ny * SZ));
+    setScanPos({ x: nx * 100, y: ny * 100 });
+  };
+
+  const handleMapHover = (col, row, active) => {
+    setIsHovering(active);
+    if (active) {
+      if (col !== null) setHoverCol(col);
+      if (row !== null) setHoverRow(row);
+      
+      const cellJump = 512 / SZ; // 64
+      setScanPos({ 
+        x: ((col + 0.5) * cellJump / 512) * 100, 
+        y: ((row + 0.5) * cellJump / 512) * 100 
+      });
+    }
   };
 
   const handleMouseLeave = () => {
     setIsHovering(false);
-    setHoverCol(-1);
-    setHoverRow(-1);
   };
 
-  const rfPercent = CONV_STAGES[activeStage].receptiveFieldFrac * 100;
+  const { rf } = getRFStats(activeStage);
+  const rfPercent = (rf / 512) * 100;
+  // Box is visible if we are hovering OR if the feature is explicitly enabled
+  const showBox = isHovering || isRFEnabled;
 
   return (
     <div className="stage-visualization backbone-viz">
 
       {/* ── Input image panel ── */}
-      <div
-        className="viz-card primary-input"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={handleMouseLeave}
-      >
+      <div className="viz-card primary-input">
         <div className="viz-label">
           Input Image
           <span style={{ fontSize: "10px", color: "#888", marginLeft: "6px" }}>
-            (hover to inspect receptive field)
+            (hover image or feature grid)
           </span>
         </div>
 
-        <div className="viz-placeholder feature-map" style={{ position: "relative", overflow: "hidden" }}>
+        <div 
+          className="viz-placeholder feature-map" 
+          style={{ position: "relative", overflow: "hidden" }}
+          onMouseMove={handleImageMouseMove}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={handleMouseLeave}
+        >
           <img src="/images/street.jpg" alt="Street scene" className="stage-input-image" />
+
+          {/* Faint Grid Overlay */}
+          {isRFEnabled && (
+            <div className="rf-grid-overlay" style={{ gridTemplateColumns: `repeat(${SZ}, 1fr)`, gridTemplateRows: `repeat(${SZ}, 1fr)` }}>
+              {Array.from({ length: SZ * SZ }).map((_, i) => (
+                <div key={i} className="rf-grid-cell" />
+              ))}
+            </div>
+          )}
 
           {/* Bounding-box overlays for primary cars only */}
           {OBJECTS.filter(o => ANNOTATED_LABELS.includes(o.label)).map((obj, i) => (
@@ -376,20 +418,16 @@ export function BackboneStage() {
           ))}
 
           {/* Receptive field cursor — grows as activeStage increases */}
-          {isHovering && (
-            <div style={{
-              position:   "absolute",
-              left:       `${scanPos.x}%`,
-              top:        `${scanPos.y}%`,
-              width:      `${rfPercent}%`,
-              height:     `${rfPercent}%`,
-              border:     "2px solid #3B82F6",
-              transform:  "translate(-50%, -50%)",
-              boxShadow:  "0 0 14px rgba(59,130,246,0.5)",
-              pointerEvents: "none",
-              boxSizing:  "border-box",
-              background: "rgba(59,130,246,0.08)",
-            }} />
+          {showBox && (
+            <div 
+              className="receptive-field-box"
+              style={{
+                left:       `${scanPos.x}%`,
+                top:        `${scanPos.y}%`,
+                width:      `${rfPercent}%`,
+                height:     `${rfPercent}%`,
+              }} 
+            />
           )}
         </div>
 
@@ -407,7 +445,12 @@ export function BackboneStage() {
           </span>
         </div>
 
-        <StageIndicator activeStage={activeStage} onSelect={setActiveStage} />
+        <StageIndicator 
+          activeStage={activeStage} 
+          onSelect={setActiveStage} 
+          showRF={isRFEnabled}
+          onToggleRF={setIsRFEnabled}
+        />
 
         <div className="viz-placeholder feature-grid-enhanced">
           {Array.from({ length: 16 }).map((_, i) => (
@@ -417,6 +460,7 @@ export function BackboneStage() {
               hoverCol={hoverCol}
               hoverRow={hoverRow}
               stageIdx={activeStage}
+              onHover={handleMapHover}
             />
           ))}
         </div>

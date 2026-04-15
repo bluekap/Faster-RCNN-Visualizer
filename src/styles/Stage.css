@@ -6,7 +6,8 @@
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  width: 100%;
+  width: min(1300px, 95vw);
+  margin: 0 auto;
   cursor: pointer;
 }
 
@@ -159,4 +160,79 @@
   .stage-details {
     padding: 1rem;
   }
+}
+/* Receptive Field Visualizations */
+.rf-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  border-radius: 20px;
+  border: 1px solid #555;
+  cursor: pointer;
+  font-weight: 600;
+  background: transparent;
+  color: #aaa;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.rf-toggle-btn:hover {
+  border-color: #777;
+  color: #ccc;
+}
+
+.rf-toggle-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #3B82F6;
+  color: #60A5FA;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.rf-toggle-icon {
+  font-size: 14px;
+}
+
+.rf-grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  pointer-events: none;
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.rf-grid-cell {
+  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  box-sizing: border-box;
+}
+
+.receptive-field-box {
+  position: absolute;
+  border: 3px solid #3B82F6;
+  outline: 1px solid rgba(255, 255, 255, 0.5); /* extra highlight for contrast */
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), inset 0 0 12px rgba(59, 130, 246, 0.4);
+  pointer-events: none;
+  box-sizing: border-box;
+  background: rgba(59, 130, 246, 0.2);
+  z-index: 20;
+  transition: all 0.1s ease-out;
+  border-radius: 3px;
+}
+
+/* Animations */
+@keyframes pulse-rf {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+}
+
+.receptive-field-box {
+  animation: pulse-rf 1.5s infinite ease-in-out;
 }

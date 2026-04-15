@@ -2,79 +2,160 @@ import React, { useState, useEffect } from 'react';
 import "../../styles/Stage.css";
 
 export function RoIStage() {
-  const [activeProposal, setActiveProposal] = useState(0);
-
-  // Cycle through proposals for the animation
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveProposal((prev) => (prev + 1) % 2);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
-
   const proposals = [
-    { id: 1, x: 8, y: 37, w: 28, h: 33, color: '#3B82F6' },
-    { id: 2, x: 50, y: 40, w: 32, h: 35, color: '#8B5CF6' }
+    { id: 1, x: 6, y: 37, w: 28, h: 33, color: '#3B82F6', rgba: '59, 130, 246' },
+    { id: 2, x: 45, y: 40, w: 32, h: 35, color: '#8B5CF6', rgba: '139, 92, 246' }
   ];
+
+  const [activeProposal, setActiveProposal] = useState(0);
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    setStep(0);
+    const zoomTimer = setTimeout(() => setStep(1), 400);
+    const gridTimer = setTimeout(() => setStep(2), 1600);
+
+    return () => {
+      clearTimeout(zoomTimer);
+      clearTimeout(gridTimer);
+    };
+  }, [activeProposal]);
+
+  const p = proposals[activeProposal];
+
+  const ZOOMED_SIZE = 260;
+
+  // The cropped image is square now, matching RPNStage
+  const IMG_ASPECT = 1;
+
+  const scaleX = ZOOMED_SIZE / p.w;
+  const cropWidthPx = 100 * scaleX;
+  const cropHeightPx = cropWidthPx / IMG_ASPECT;
+  const scaleYCorr = cropHeightPx / 100;
+
+  const cropLeft = -(p.x * scaleX);
+  const cropTop = -(p.y * scaleYCorr);
 
   return (
     <div className="stage-visualization roi-viz">
       <div className="viz-card">
-        <div className="viz-label">Regional Proposals (Filtered)</div>
-        <div className="viz-placeholder roi-source">
-          <img src="/images/street.jpg" alt="Proposals" className="stage-input-image small" />
-          <svg className="roi-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
-            {proposals.map((p, idx) => (
-              <g key={p.id} opacity={activeProposal === idx ? 1 : 0.4}>
-                <rect x={p.x} y={p.y} width={p.w} height={p.h} fill="none" stroke={p.color} strokeWidth={activeProposal === idx ? 2 : 1} />
-                <rect x={p.x + 1} y={p.y - 4} width="10" height="4" fill={p.color} />
-                <text x={p.x + 2} y={p.y - 1} fontSize="3" fill="white" fontWeight="bold">{p.id}</text>
+        <div className="viz-label">1. Click a Proposal</div>
+        <div className="viz-placeholder roi-source relative overflow-hidden">
+          {/* LEFT PANEL - exactly matching RPNStage to prevent flex collapse */}
+          <img
+            src="/images/street.jpg"
+            alt="Proposals"
+            className="stage-input-image small w-full h-full object-cover"
+            draggable={false}
+          />
+          {/* SVG Overlay set to precisely cover the padding box's content area */}
+          <svg
+            className="absolute"
+            style={{ inset: '0.75rem', zIndex: 10, width: 'calc(100% - 1.5rem)', height: 'calc(100% - 1.5rem)' }}
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            {proposals.map((prop, idx) => (
+              <g
+                key={prop.id}
+                opacity={activeProposal === idx ? 1 : 0.4}
+                onClick={() => setActiveProposal(idx)}
+                style={{ cursor: 'pointer', pointerEvents: 'all' }}
+                className="transition-opacity duration-300"
+              >
+                <rect
+                  x={prop.x} y={prop.y}
+                  width={prop.w} height={prop.h}
+                  fill={activeProposal === idx ? `rgba(${prop.rgba},0.2)` : '#ffffff'}
+                  fillOpacity={activeProposal === idx ? 1 : 0}
+                  stroke={prop.color}
+                  strokeWidth={activeProposal === idx ? 2 : 1}
+                  rx="0.5"
+                />
+                <rect x={prop.x + 1} y={prop.y - 5} width="12" height="5" fill={prop.color} rx="0.5" />
+                <text x={prop.x + 2.5} y={prop.y - 1.5} fontSize="3.5" fill="white" fontWeight="bold">P{prop.id}</text>
               </g>
             ))}
           </svg>
         </div>
-        <div className="viz-meta">Non-Max Suppression (NMS) applied</div>
       </div>
 
       <div className="viz-arrow">→</div>
 
-      <div className="viz-card">
-        <div className="viz-label">RoI Pooling: Fixed Output</div>
-        <div className="viz-placeholder roi-pooling-demo">
-          <div className="roi-pool-item flex flex-col items-center">
-            <div className="flex items-center gap-4 mb-2">
-               <div className="roi-pool-input border-2 border-dashed rounded overflow-hidden" 
-                    style={{ borderColor: proposals[activeProposal].color }}>
-                <div className="roi-pool-label-small bg-gray-800 text-white text-[8px] px-1">Proposal {proposals[activeProposal].id}</div>
-                <div className="w-16 h-16 bg-gray-900 flex items-center justify-center overflow-hidden">
-                   <img 
-                    src="/images/street.jpg" 
-                    alt="Proposal crop" 
-                    className="max-w-none transition-all duration-500"
-                    style={{
-                      width: '400%',
-                      transform: `translate(${-proposals[activeProposal].x * 1}% , ${-proposals[activeProposal].y * 1}%)`
-                    }}
-                   />
-                </div>
-              </div>
-              <div className="roi-pool-arrow text-xl">→</div>
-              <div className="roi-pool-grid grid grid-cols-7 border border-gray-700">
-                {Array.from({ length: 49 }).map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="roi-cell w-3 h-3 transition-colors duration-500"
-                    style={{
-                      background: proposals[activeProposal].color.replace(')', `, ${0.2 + Math.random() * 0.8})`).replace('rgb', 'rgba')
-                    }}
-                  />
-                ))}
-              </div>
+      <div className="viz-card" style={{ flex: 1.5 }}>
+        <div className="viz-label">Magnifying Glass Overlay</div>
+        <div className="viz-placeholder roi-pooling-demo p-4 flex flex-col items-center justify-center relative overflow-hidden" style={{ minHeight: '360px' }}>
+
+          {/* Use scale transform on the whole container for smooth animation */}
+          <div
+            className="relative border-4 rounded-lg shadow-2xl bg-gray-900 overflow-hidden"
+            style={{
+              borderColor: p.color,
+              width: `${ZOOMED_SIZE}px`,
+              height: `${ZOOMED_SIZE}px`,
+              transform: step >= 1
+                ? 'translateY(-10px) scale(1)'
+                : 'translateY(10px) scale(0.3)',
+              transition: 'transform 1200ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 300ms ease',
+              transformOrigin: 'center center',
+            }}
+          >
+            {/* 
+              CRITICAL FIX: Use absolute positioning with calculated pixel values
+              instead of CSS transform percentages to ensure precise alignment
+            */}
+            <img
+              src="/images/street.jpg"
+              alt="Crop mapping"
+              draggable={false}
+              style={{
+                position: 'absolute',
+                width: `${cropWidthPx}px`,
+                height: `${cropHeightPx}px`,
+                left: `${cropLeft}px`,
+                top: `${cropTop}px`,
+                objectFit: 'fill', // Must match source image
+              }}
+            />
+
+            {/* Grid overlay */}
+            <div
+              className={`absolute inset-0 w-full h-full grid grid-cols-7 ${step >= 2 ? 'opacity-100' : 'opacity-0'}`}
+              style={{
+                gridTemplateRows: 'repeat(7, 1fr)',
+                transform: step >= 2 ? 'scale(1) translateY(0)' : 'scale(1.1) translateY(-30px)',
+                backgroundColor: `rgba(${p.rgba}, 0.15)`,
+                transition: 'all 800ms ease-out',
+              }}
+            >
+              {Array.from({ length: 49 }).map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    border: '1px solid rgba(255, 255, 255, 0.35)',
+                    backgroundColor: `rgba(${p.rgba}, 0.08)`
+                  }}
+                />
+              ))}
             </div>
-            <div className="viz-meta">Any shape → Fixed 7×7 tensor</div>
+          </div>
+
+          <div
+            className="viz-info-box mt-6 bg-gray-50/50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700 transition-all duration-500 text-center w-[90%] shadow-sm"
+            style={{
+              borderLeftWidth: '4px',
+              borderLeftColor: p.color,
+              height: '60px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {step < 2
+              ? <span>Click a proposal on the left to zoom in.</span>
+              : <span><strong>Step 1:</strong> Divide the proposal into a fixed 7×7 grid.</span>}
           </div>
         </div>
-        <div className="viz-meta">Bilinear interpolation for sub-pixel accuracy</div>
       </div>
     </div>
   );
