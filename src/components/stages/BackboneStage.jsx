@@ -88,6 +88,21 @@ const GROUP_COLORS = {
   Semantic: [239, 68,  68 ],
 };
 
+const BACKBONE_EXPLAINER_STEPS = [
+  {
+    label: "1. Start with the same image",
+    text: "The backbone receives the full street scene, not cropped proposals.",
+  },
+  {
+    label: "2. Scan for useful clues",
+    text: "Small learned filters respond to edges, textures, shapes, and car-like parts.",
+  },
+  {
+    label: "3. Save reusable maps",
+    text: "Later stages reuse these maps to propose regions and classify objects.",
+  },
+];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function prng(seed) {
   let s = (seed >>> 0) + 1;
@@ -276,10 +291,10 @@ function StageIndicator({ activeStage, onSelect, showRF, onToggleRF }) {
       <button
         onClick={() => onToggleRF(!showRF)}
         className={`rf-toggle-btn ${showRF ? "active" : ""}`}
-        title="Toggle constant receptive field grid"
+        title="Show which image regions feed each feature-map cell"
       >
         <span className="rf-toggle-icon">{showRF ? "👁️" : "👁️‍🗨️"}</span>
-        Show RF Grid
+        Show Image Regions
       </button>
     </div>
   );
@@ -361,13 +376,24 @@ export function BackboneStage() {
 
   return (
     <div className="stage-visualization backbone-viz">
+      <div className="backbone-explainer">
+        {BACKBONE_EXPLAINER_STEPS.map((step, index) => (
+          <div key={step.label} className="backbone-explainer-step">
+            <div className="backbone-step-number">{index + 1}</div>
+            <div>
+              <div className="backbone-step-label">{step.label}</div>
+              <p className="backbone-step-text">{step.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* ── Input image panel ── */}
       <div className="viz-card primary-input">
         <div className="viz-label">
-          Input Image
+          Full Image
           <span style={{ fontSize: "10px", color: "#888", marginLeft: "6px" }}>
-            (hover image or feature grid)
+            (hover to see the matching feature region)
           </span>
         </div>
 
@@ -439,9 +465,9 @@ export function BackboneStage() {
       {/* ── Feature map panel ── */}
       <div className="viz-card output" style={{ flex: 1 }}>
         <div className="viz-label">
-          Backbone Feature Extraction
+          Reusable Feature Maps
           <span style={{ fontSize: "10px", color: "#888", marginLeft: "6px" }}>
-            ({CONV_STAGES[activeStage].desc})
+            (visual clues the model can reuse)
           </span>
         </div>
 
@@ -471,8 +497,8 @@ export function BackboneStage() {
 
         <div className="viz-meta" style={{ marginTop: "6px" }}>
           {activeStage < 3
-            ? `${CONV_STAGES[activeStage].label}: early features, small receptive field`
-            : "Final feature map (8×8): each cell encodes a 64×64 px region of the input"}
+            ? "Each tile is one learned pattern map, such as edges, textures, shapes, or car-like parts"
+            : "Final feature map: each cell summarizes one region of the original image"}
         </div>
       </div>
 

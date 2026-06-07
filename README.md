@@ -1,90 +1,119 @@
-# Faster-RCNN-Visualizer
+# Faster R-CNN Visualizer
 
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![D3.js](https://img.shields.io/badge/D3.js-F9A03C?style=for-the-badge&logo=d3.dot.js&logoColor=white)](https://d3js.org/)
-[![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=greensock&logoColor=white)](https://greensock.com/)
+Interactive visual guide for understanding how Faster R-CNN turns an input image into object detections.
 
-An interactive, high-fidelity visualization of the **Faster R-CNN** object detection pipeline. This tool provides a deep dive into how deep learning models identify and localize objects (specifically cars) in complex urban environments.
+This project is a Vite + React app that explains the Faster R-CNN pipeline through animated stages, clickable details, and a narrative walkthrough. The current scenario focuses on finding cars in an urban street scene, using simplified but faithful visualizations of the main model components.
 
----
+## Project Goal
 
-## 🌟 Key Features
+Faster R-CNN can be hard to understand from equations and architecture diagrams alone. This visualizer is meant to make the model feel inspectable:
 
-### 🔍 Advanced Visualizations
-- **Interactive Receptive Fields:** Mathematically accurate mapping between feature map cells and their corresponding regions in the input image.
-- **Dynamic Feature Activations:** Hover over the Shared Backbone to see simulated channel responses to localized visual patterns.
-- **SVG Architecture Diagrams:** Robust, animated SVG layouts for the Detection Head, illustrating the split between classification and bounding box regression.
-- **Animated RoI Pooling:** A visual demonstration of how variable-sized proposals are normalized into fixed-size tensors (7x7) for downstream processing.
+- Show the full two-stage detector pipeline from image features to final boxes.
+- Explain what each stage receives, computes, and passes forward.
+- Make anchors, proposals, RoI pooling, classification, and box refinement visible.
+- Give learners a guided path through the architecture without requiring a deep learning setup.
 
-### 🍱 User Experience
-- **Interactive Narrative Panel:** A step-by-step walkthrough of the pipeline with visual flow connectors indicating the sequential nature of the architecture.
-- **Real-time Detection Filtering:** Adjust confidence thresholds via an interactive slider to see how the model's certainty affects detection output.
-- **Premium Aesthetics:** Modern dark/light mode optimization, smooth GSAP-powered transitions, and a responsive glassmorphism-inspired UI.
+## Faster R-CNN Flow
 
----
+1. **Shared Backbone**
+   The image is passed through a convolutional feature extractor. Instead of processing every candidate crop separately, Faster R-CNN computes one shared feature map for the whole image.
 
-## 🛠 Tech Stack
+2. **Region Proposal Network**
+   The RPN scans the shared feature map with anchor boxes. It predicts which anchors are likely to contain objects and adjusts their coordinates into better region proposals.
 
-- **Core:** [React](https://reactjs.org/) (Functional Components, Hooks)
-- **Build Tool:** [Vite](https://vitejs.dev/) for ultra-fast development.
-- **Graphics:** [D3.js](https://d3js.org/) for mathematical visualizations and [Lucide React](https://lucide.dev/) for iconography.
-- **Animations:** [GSAP](https://greensock.com/) (GreenSock Animation Platform) for high-performance UI transitions.
-- **Styling:** Vanilla CSS with a focus on modern design tokens and responsiveness.
+3. **RoI Pooling**
+   Each proposal can have a different shape and size. RoI Pooling converts every proposal into a fixed-size feature tensor so the detection head can process them consistently.
 
----
+4. **Detection Head**
+   The final head classifies each proposal, refines the bounding box, scores confidence, and removes duplicate boxes with non-max suppression.
 
-## 🚀 Getting Started
+## What Is Built
 
-### Prerequisites
-- Node.js (v16.0 or higher)
-- npm or yarn
+- Interactive pipeline stages for backbone features, RPN proposals, RoI pooling, and final detection.
+- Stage detail modal with expanded educational content.
+- Narrative panel for stepping through the architecture.
+- Animated connectors and transitions for the pipeline flow.
+- Street-scene image asset for a concrete car-detection example.
 
-### Installation
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/bluekap/Faster-RCNN-Visualizer.git
-   cd Faster-RCNN-Visualizer
-   ```
+## Tech Stack
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+- React 19
+- Vite 7
+- D3 for data-driven visual elements
+- GSAP for animation
+- Lucide React for icons
+- Vanilla CSS for layout and styling
 
-### Development
-Run the app in development mode with HMR:
+## Getting Started
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the local dev server:
+
 ```bash
 npm run dev
 ```
-The app will be available at `http://localhost:5173`.
 
-### Production
-Build the project for production:
+Vite will print the local URL, usually:
+
+```text
+http://localhost:5173/
+```
+
+Build for production:
+
 ```bash
 npm run build
 ```
-Preview the production build locally:
+
+Preview the production build:
+
 ```bash
 npm run preview
 ```
 
-### 🚢 Deployment
-This project is configured for automated deployment to **GitHub Pages** using GitHub Actions.
+## Project Structure
 
-1.  **Configuration:** The deployment workflow is defined in `.github/workflows/deploy.yml`.
-2.  **Base Path:** The `base` property in `vite.config.js` is set to `'/Faster-RCNN-Visualizer/'` to ensure assets load correctly on GitHub Pages.
-3.  **Activation:**
-    - Go to your repository **Settings > Pages**.
-    - Under **Build and deployment > Source**, select **GitHub Actions**.
-4.  **Automatic Updates:** Every push to the `main` branch will automatically trigger a new deployment.
+```text
+src/
+  App.jsx
+  components/
+    Pipeline.jsx
+    Stage.jsx
+    DetailModal.jsx
+    NarrativePanel.jsx
+    stages/
+      BackboneStage.jsx
+      RPNStage.jsx
+      RoIStage.jsx
+      HeadStage.jsx
+  constants/
+    stageData.js
+    colors.js
+  hooks/
+  styles/
+public/
+  images/
+    street.jpg
+```
 
----
+## Deployment
 
-## ⚖️ License & Attribution
+The Vite `base` path is set to `/Faster-RCNN-Visualizer/` for GitHub Pages. The repository also includes a GitHub Actions workflow at `.github/workflows/deploy.yml` that builds and deploys the `dist` output when changes are pushed to `main`.
 
-© 2026 **bluekap™**. All Rights Reserved.
+For GitHub Pages, set **Settings > Pages > Build and deployment > Source** to **GitHub Actions**.
 
-Designed and developed by [bluekap](https://github.com/bluekap).
+## Roadmap
 
-Faster R-CNN is a landmark framework in the field of Computer Vision. This visualizer is intended for educational purposes to help developers and researchers better understand the inner workings of two-stage object detectors.
+- Add toggles for anchor scales, aspect ratios, and confidence thresholds.
+- Add side-by-side comparison of R-CNN, Fast R-CNN, and Faster R-CNN.
+- Add more object-detection scenarios beyond the street scene.
+- Add lightweight tests for stage data and UI rendering.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

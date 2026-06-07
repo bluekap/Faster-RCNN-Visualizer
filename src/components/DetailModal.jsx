@@ -13,14 +13,71 @@ export function DetailModal({ stage, index, isOpen, onClose, children }) {
   useEffect(() => {
     if (!isOpen) return;
 
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    let lastTouchY = 0;
+    const scrollableSelector =
+      ".detail-modal-visualization, .detail-modal-details, .detail-modal-content";
+
+    const canScrollWithinModal = (target, deltaY) => {
+      const scrollable = target.closest?.(scrollableSelector);
+      if (!scrollable) return false;
+
+      const canScroll = scrollable.scrollHeight > scrollable.clientHeight;
+      if (!canScroll) return false;
+
+      if (deltaY < 0) return scrollable.scrollTop > 0;
+      if (deltaY > 0) {
+        return scrollable.scrollTop + scrollable.clientHeight < scrollable.scrollHeight - 1;
+      }
+
+      return true;
+    };
+
+    const handleWheel = (e) => {
+      if (!canScrollWithinModal(e.target, e.deltaY)) {
+        e.preventDefault();
+      }
+      e.stopPropagation();
+    };
+
+    const handleTouchStart = (e) => {
+      lastTouchY = e.touches[0]?.clientY ?? 0;
+    };
+
+    const handleTouchMove = (e) => {
+      const currentY = e.touches[0]?.clientY ?? lastTouchY;
+      const deltaY = lastTouchY - currentY;
+      lastTouchY = currentY;
+
+      if (!canScrollWithinModal(e.target, deltaY)) {
+        e.preventDefault();
+      }
+      e.stopPropagation();
+    };
+
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         onClose?.();
       }
     };
 
+    const modalNode = modalRef.current;
+    modalNode?.addEventListener("wheel", handleWheel, { passive: false });
+    modalNode?.addEventListener("touchstart", handleTouchStart, { passive: true });
+    modalNode?.addEventListener("touchmove", handleTouchMove, { passive: false });
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      modalNode?.removeEventListener("wheel", handleWheel);
+      modalNode?.removeEventListener("touchstart", handleTouchStart);
+      modalNode?.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
   }, [isOpen, onClose]);
 
   // Handle backdrop click to close

@@ -1,24 +1,49 @@
 // Faster R-CNN pipeline stages and descriptions
 export const stages = [
   {
-    id: "backbone",
+    id: "input",
     number: "01",
+    title: "Input Image",
+    kicker: "Step 1",
+    subtitle: "Start With Pixels",
+    description:
+      "The visual guide starts with the original street image. Faster R-CNN does not begin with boxes or classes — it begins with pixels, spatial layout, and objects at different scales.",
+    shortDescription: "Raw pixels → model-ready image",
+    mental_model:
+      "Before the network can detect anything, it needs one shared scene to inspect. The image is the source of all later features, anchors, proposals, and detections.",
+    key_insight:
+      "Starting from the image makes every later step traceable: feature cells, anchors, proposals, and final boxes can all be connected back to real regions in the scene.",
+    howItWorks:
+      "The input image is resized into the shape expected by the model and normalized before the convolutional backbone sees it. In this visualizer, the street scene is treated as a 512×512 RGB image so each later stage can reference consistent coordinates.",
+    keyInsightExtended:
+      "The model never receives a hand-picked crop first. Faster R-CNN processes the full image once, then learns which regions are worth inspecting more closely.",
+    purpose:
+      "Establish the concrete scene that the rest of the detector will analyze step by step.",
+    inputOutput: {
+      input: "Street scene image",
+      output: "512×512 RGB tensor prepared for the backbone",
+    },
+    transition: "Normalized Image",
+  },
+  {
+    id: "backbone",
+    number: "02",
     title: "Shared Backbone",
-    kicker: "Stage 1",
+    kicker: "Step 2",
     subtitle: "Feature Extraction",
     description:
-      "The backbone extracts feature maps that will later be used by the Region Proposal Network. It runs a single CNN pass to create a dense representation that all downstream stages reuse, dramatically improving speed.",
+      "The backbone looks over the image once and turns pixels into reusable feature maps. Each map highlights a kind of visual pattern, such as edges, textures, shapes, or car-like parts.",
     shortDescription: "One CNN pass → reusable features",
-    mental_model: "At this stage, the network is not detecting objects yet — it is only learning what patterns exist in the image.",
+    mental_model: "Think of this as making a smart sketch of the image. The model is not drawing boxes yet; it is marking where useful visual clues appear.",
     key_insight:
-      "By computing features once and reusing them, Faster R-CNN avoids redundant computation and enables efficient object detection.",
+      "The rest of Faster R-CNN reuses this one feature map, so the image does not need to be analyzed from scratch for every possible object region.",
     // Extended detailed content
     howItWorks:
-      "A convolutional backbone (typically VGG16 or ResNet-50) slides learned filters across the entire input image, producing a dense feature map. Each layer builds on the previous: early layers detect low-level patterns like edges and colour gradients, while deeper layers combine these into high-level semantic concepts like car bodies and windows. Faster R-CNN runs this step once and shares the result with all downstream stages.",
+      "A convolutional backbone slides learned filters across the image. Early filters respond to simple clues like edges and color changes. Deeper filters combine those clues into more meaningful patterns, like wheels, windows, road regions, and car-like shapes. Faster R-CNN runs this once and shares the result with later stages.",
     keyInsightExtended:
       "In earlier detectors like R-CNN, features were extracted separately for each region proposal — up to 2,000 times per image. Faster R-CNN's shared backbone computes features just once, making it ~250× faster.",
     purpose:
-      "Convert raw pixel values into a rich spatial feature map that encodes what is in each part of the image and where. This representation is then reused by both the Region Proposal Network (Stage 2) and the detection head (Stage 3).",
+      "Convert raw pixels into a spatial feature map that keeps the layout of the scene while describing what visual patterns appear in each area.",
     inputOutput: {
       input: "512×512 RGB image (3 channels)",
       output: "8×8×512 feature map — each of the 64 spatial cells encodes a 64×64 px receptive field from the original image",
@@ -49,9 +74,9 @@ export const stages = [
   },
   {
     id: "rpn",
-    number: "02",
+    number: "03",
     title: "Region Proposal Network",
-    kicker: "Stage 2",
+    kicker: "Step 3",
     subtitle: "Generate Proposals",
     description:
       "The RPN slides across the feature map, testing multiple anchor templates at each location and predicting objectness scores and box offsets. This generates candidate regions likely to contain objects.",
@@ -62,9 +87,9 @@ export const stages = [
   },
   {
     id: "roi",
-    number: "03",
+    number: "04",
     title: "RoI Pooling",
-    kicker: "Stage 3",
+    kicker: "Step 4",
     subtitle: "Normalize Regions",
     description:
       "Each region proposal is warped to a fixed-size feature map using RoI Pooling, allowing the network to process objects of any size uniformly.",
@@ -88,9 +113,9 @@ export const stages = [
   },
   {
     id: "head",
-    number: "04",
+    number: "05",
     title: "Detection Head",
-    kicker: "Stage 4",
+    kicker: "Step 5",
     subtitle: "Classify & Refine",
     description:
       "The final head classifies each region (predicting the object class and confidence) and refines the bounding box. Non-max suppression then removes duplicate detections.",

@@ -1,13 +1,23 @@
 {
   "name": "faster-rcnn-visualizer",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Interactive visual guide to the Faster R-CNN object detection pipeline.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
+  "keywords": [
+    "faster-rcnn",
+    "computer-vision",
+    "object-detection",
+    "visualization",
+    "react"
+  ],
+  "author": "bluekap",
+  "license": "MIT",
   "dependencies": {
     "d3": "^7.9.0",
     "gsap": "^3.14.2",

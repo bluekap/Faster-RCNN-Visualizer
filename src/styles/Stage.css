@@ -6,7 +6,8 @@
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  width: min(1300px, 95vw);
+  width: 100%;
+  max-width: 1300px;
   margin: 0 auto;
   cursor: pointer;
 }
@@ -85,6 +86,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   color: rgb(107, 114, 128);
   font-size: 0.875rem;
   text-align: center;

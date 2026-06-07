@@ -24,37 +24,54 @@ export function useModalAnimations(stage, isOpen, stageIndex) {
     timelineRef.current = tl;
 
     // Get all animated elements in the container
-    const vizContainer = containerRef.current?.querySelector(".detail-modal-visualization");
+    const vizContainer = containerRef.current;
     if (!vizContainer) return;
 
     const vizCards = vizContainer.querySelectorAll(".viz-card");
     const vizArrows = vizContainer.querySelectorAll(".viz-arrow");
     const gridCells = vizContainer.querySelectorAll(".grid-cell");
     const featureGrids = vizContainer.querySelectorAll(".roi-cell");
-    const proposalBoxes = vizContainer.querySelectorAll("[x]"); // SVG elements
     const classRows = vizContainer.querySelectorAll(".class-row");
     const detectionBoxes = vizContainer.querySelectorAll("rect[fill='none']");
 
     // Common animation patterns
-    const fadeInScale = (element) => {
-      gsap.set(element, { opacity: 0, scale: 0.9 });
-      return gsap.to(element, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.5)" }, 0);
-    };
-
-    const fadeInSlide = (element, direction = "up") => {
-      const fromVars = {
-        opacity: 0,
-        ...(direction === "up" && { y: 20 }),
-        ...(direction === "down" && { y: -20 }),
-        ...(direction === "left" && { x: 20 }),
-        ...(direction === "right" && { x: -20 }),
-      };
-      gsap.set(element, fromVars);
-      return gsap.to(element, { opacity: 1, y: 0, x: 0, duration: 0.5, ease: "power2.out" }, 0);
-    };
-
     // Stage-specific animations
-    if (stageIndex === 0) {
+    if (stage.id === "input") {
+      // Input stage: source image, target callouts, then tensor prep.
+      const inputImage = vizContainer.querySelector(".stage-input-image");
+      const callouts = vizContainer.querySelectorAll(".input-callout-box");
+      const prepItems = vizContainer.querySelectorAll(".input-prep-item");
+      const networkNodes = vizContainer.querySelectorAll(".network-node");
+      const networkLinks = vizContainer.querySelectorAll(".network-link");
+
+      if (inputImage) {
+        tl.fromTo(inputImage, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 0);
+      }
+
+      if (callouts.length > 0) {
+        gsap.set(callouts, { opacity: 0, scale: 0.96 });
+        tl.to(callouts, { opacity: 1, scale: 1, duration: 0.35, stagger: 0.12 }, 0.35);
+      }
+
+      if (vizArrows.length > 0) {
+        tl.to(vizArrows[0], { opacity: 0.8, duration: 0.4 }, 0.55);
+      }
+
+      if (prepItems.length > 0) {
+        gsap.set(prepItems, { opacity: 0, x: -10 });
+        tl.to(prepItems, { opacity: 1, x: 0, duration: 0.35, stagger: 0.1 }, 0.75);
+      }
+
+      if (networkNodes.length > 0) {
+        gsap.set(networkNodes, { opacity: 0, x: -8 });
+        tl.to(networkNodes, { opacity: 1, x: 0, duration: 0.35, stagger: 0.08 }, 1);
+      }
+
+      if (networkLinks.length > 0) {
+        gsap.set(networkLinks, { opacity: 0, scaleX: 0, transformOrigin: "left center" });
+        tl.to(networkLinks, { opacity: 1, scaleX: 1, duration: 0.3, stagger: 0.08 }, 1.08);
+      }
+    } else if (stage.id === "backbone") {
       // Backbone stage: image fade in, then feature grid stagger
       const inputImage = vizContainer.querySelector(".stage-input-image");
       const featureGrid = vizContainer.querySelector(".feature-grid");
@@ -81,7 +98,7 @@ export function useModalAnimations(stage, isOpen, stageIndex) {
           0.7
         );
       }
-    } else if (stageIndex === 1) {
+    } else if (stage.id === "rpn") {
       // RPN stage: feature map, anchor grid appear, proposals generate with stagger
       const rpnInput = vizContainer.querySelector(".stage-input-image");
       const proposalOverlay = vizContainer.querySelector(".proposal-overlay");
@@ -120,7 +137,7 @@ export function useModalAnimations(stage, isOpen, stageIndex) {
           0.95
         );
       }
-    } else if (stageIndex === 2) {
+    } else if (stage.id === "roi") {
       // RoI Pooling: proposals → pooled tensors with transformation effect
       const roiSource = vizContainer.querySelector(".roi-source");
       const roiPool = vizContainer.querySelector(".roi-pool-item");
@@ -148,7 +165,7 @@ export function useModalAnimations(stage, isOpen, stageIndex) {
           0.7
         );
       }
-    } else if (stageIndex === 3) {
+    } else if (stage.id === "head") {
       // Detection Head: classification scores appear, detection boxes stroke animate
       const classificationCards = vizContainer.querySelectorAll(".class-row");
       const detectionOverlay = vizContainer.querySelector(".detection-box-overlay");

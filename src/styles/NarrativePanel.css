@@ -1,19 +1,23 @@
 /* Narrative Panel Styling */
 .narrative-panel {
+  position: sticky;
+  top: 2rem;
+  align-self: flex-start;
   width: 100%;
   max-width: 380px;
+  max-height: calc(100vh - 4rem);
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: fit-content;
   margin-left: auto;
   padding: 0;
 }
 
 .narrative-header {
+  flex-shrink: 0;
   padding: 2rem 1.5rem;
   border-left: 4px solid var(--stage-color);
   background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, transparent 100%);
@@ -48,6 +52,7 @@
 .narrative-content {
   padding: 1.5rem;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -102,6 +107,7 @@
 
 /* Progress Bar */
 .narrative-progress {
+  flex-shrink: 0;
   height: 3px;
   background: rgb(229, 231, 235);
   margin: 1.5rem 0 0 0;
@@ -115,6 +121,7 @@
 
 /* Controls */
 .narrative-controls {
+  flex-shrink: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -168,6 +175,8 @@
 
 @media (max-width: 1200px) {
   .narrative-panel {
+    position: static;
+    max-height: none;
     max-width: none;
     width: 100%;
     margin-left: 0;

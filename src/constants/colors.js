@@ -1,6 +1,12 @@
 // Semantic color palette for Faster R-CNN pipeline stages
 export const colors = {
   // Stage colors
+  input: {
+    primary: "rgb(14, 165, 233)",     // sky-500
+    secondary: "rgb(125, 211, 252)",  // sky-300
+    light: "rgba(14, 165, 233, 0.1)",
+    accent: "rgba(14, 165, 233, 0.3)",
+  },
   backbone: {
     primary: "rgb(59, 130, 246)",     // blue-500
     secondary: "rgb(147, 197, 253)",  // blue-300
@@ -49,6 +55,6 @@ export const colors = {
 };
 
 export const getStageColor = (index) => {
-  const stageColors = [colors.backbone, colors.rpn, colors.roi, colors.head];
+  const stageColors = [colors.input, colors.backbone, colors.rpn, colors.roi, colors.head];
   return stageColors[index] || colors.backbone;
 };

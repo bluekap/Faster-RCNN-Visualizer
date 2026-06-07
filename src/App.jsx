@@ -3,17 +3,17 @@ import Pipeline from "./components/Pipeline.jsx";
 import DetailModal from "./components/DetailModal.jsx";
 import NarrativePanel from "./components/NarrativePanel.jsx";
 import { stages } from "./constants/stageData.js";
+import { InputStage } from "./components/stages/InputStage.jsx";
 import { BackboneStage } from "./components/stages/BackboneStage.jsx";
 import { RPNStage } from "./components/stages/RPNStage.jsx";
 import { RoIStage } from "./components/stages/RoIStage.jsx";
 import { HeadStage } from "./components/stages/HeadStage.jsx";
 import "./styles/App.css";
 
-// Street scenario - finding a car in an urban scene
-const STREET_SCENARIO = {
-  label: "Street Scene",
+const WALKTHROUGH_EXAMPLE = {
+  label: "Street Scene Example",
   noun: "car",
-  description: "Finding cars in busy urban streets",
+  description: "A step-by-step object detection walkthrough using one street-scene example.",
 };
 
 function App() {
@@ -23,6 +23,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const stageContent = [
+    <InputStage key="input" />,
     <BackboneStage key="backbone" />,
     <RPNStage key="rpn" />,
     <RoIStage key="roi" />,
@@ -44,8 +45,8 @@ function App() {
       {/* Header */}
       <header className="app-header">
         <div className="header-left">
-          <h1 className="app-title">Faster R-CNN: Finding Cars in Streets</h1>
-          <p className="app-subtitle">{STREET_SCENARIO.description}</p>
+          <h1 className="app-title">Faster R-CNN Visual Guide</h1>
+          <p className="app-subtitle">{WALKTHROUGH_EXAMPLE.description}</p>
         </div>
         <div className="header-right">
           <button 
